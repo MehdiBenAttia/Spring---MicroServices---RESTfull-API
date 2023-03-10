@@ -1,5 +1,6 @@
 package com.example.mehdibenattia.Controller;
 
+import com.example.mehdibenattia.entities.TypeAbonnement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import com.example.mehdibenattia.Services.ISkieurService;
@@ -42,5 +43,10 @@ public class SkieurController {
     @PutMapping("/{numSkieur}/{numAbon}")
     public Skieur AssignSkierToSubscription(long numSkieur, long numAbon){
         return iSkieurService.AssignSkierToSubscription(numSkieur, numAbon);
+    }
+
+    @GetMapping("getSkieurParTypeAbon/{tp}")
+    public List<Skieur> getSkieurParTypeAbon(@PathVariable TypeAbonnement typeAbonnement){
+        return  iSkieurService.retrieveSkiersBySubscriptionType(typeAbonnement);
     }
 }

@@ -1,6 +1,7 @@
 package com.example.mehdibenattia.Services;
 
 import com.example.mehdibenattia.entities.Skieur;
+import com.example.mehdibenattia.entities.TypeAbonnement;
 
 import java.util.List;
 
@@ -14,4 +15,6 @@ public interface ISkieurService {
     Skieur assignSkierToPiste(Long numSkieur, Long numPiste);
 
     Skieur AssignSkierToSubscription(long numSkieur, long numAbon);
+
+    List<Skieur> retrieveSkiersBySubscriptionType(TypeAbonnement typeAbonnement);
 }

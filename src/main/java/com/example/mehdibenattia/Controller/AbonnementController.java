@@ -1,10 +1,13 @@
 package com.example.mehdibenattia.Controller;
 
+import com.example.mehdibenattia.entities.TypeAbonnement;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import com.example.mehdibenattia.Services.IAbonnementService;
 import com.example.mehdibenattia.entities.Abonnement;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 @RestController
@@ -42,5 +45,15 @@ public class AbonnementController {
 
         return  iAbonnementService.updateAbonnement(abonnement);
 
+    }
+
+    @GetMapping("abParType/{tp}")
+    public List<Abonnement> getAbonnementParType(@PathVariable TypeAbonnement typeAbonnement){
+        return  iAbonnementService.getSubscriptionByType(typeAbonnement);
+    }
+
+    @GetMapping("abParDate/{dateDebut}/{dateFin}")
+    public List<Abonnement>getAbonnementParDate (@PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate, @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate){
+        return  iAbonnementService.retrieveSubscriptionsByDates(startDate,endDate);
     }
 }

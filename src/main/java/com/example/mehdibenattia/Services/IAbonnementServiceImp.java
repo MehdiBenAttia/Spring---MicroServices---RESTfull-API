@@ -1,10 +1,12 @@
 package com.example.mehdibenattia.Services;
 
+import com.example.mehdibenattia.entities.TypeAbonnement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.mehdibenattia.Repositories.AbonnementRepository;
 import com.example.mehdibenattia.entities.Abonnement;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 @Service
@@ -30,6 +32,16 @@ public class IAbonnementServiceImp implements IAbonnementService{
     @Override
     public Optional<Abonnement> retrieveAbonnement(Long numAbon) {
         return abonnementRepository.findById(numAbon);
+    }
+
+    @Override
+    public List<Abonnement> getSubscriptionByType(TypeAbonnement type) {
+        return abonnementRepository.findByTypeAbon(type);
+    }
+
+    @Override
+    public List<Abonnement> retrieveSubscriptionsByDates(LocalDate startDate, LocalDate endDate) {
+        return  abonnementRepository.findAbonnementByDateDebutAndDateFin(startDate,endDate);
     }
 
     @Override

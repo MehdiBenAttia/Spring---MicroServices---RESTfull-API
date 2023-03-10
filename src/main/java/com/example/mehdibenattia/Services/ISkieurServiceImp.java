@@ -1,5 +1,6 @@
 package com.example.mehdibenattia.Services;
 
+import com.example.mehdibenattia.entities.TypeAbonnement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.mehdibenattia.Repositories.AbonnementRepository;
@@ -70,6 +71,11 @@ public class ISkieurServiceImp implements ISkieurService{
 
         }
         return null;
+    }
+
+    @Override
+    public List<Skieur> retrieveSkiersBySubscriptionType(TypeAbonnement typeAbonnement) {
+        return skieurRepository.findSkieurByAbonnement_TypeAbon(typeAbonnement);
     }
 
 }
