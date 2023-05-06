@@ -21,6 +21,6 @@ public class Inscription {
     @ManyToOne
     private Cours cours;
     @ManyToOne
-    @JsonIgnore //ki n'ajouti inscription mch bech yzidli skieur maah
+    @JsonIgnore
     private Skieur skieur;
 }

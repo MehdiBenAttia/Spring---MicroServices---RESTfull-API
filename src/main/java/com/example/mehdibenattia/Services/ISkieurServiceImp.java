@@ -1,16 +1,13 @@
 package com.example.mehdibenattia.Services;
 
-import com.example.mehdibenattia.entities.TypeAbonnement;
+import com.example.mehdibenattia.Repositories.*;
+import com.example.mehdibenattia.entities.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.example.mehdibenattia.Repositories.AbonnementRepository;
-import com.example.mehdibenattia.Repositories.PisteRepository;
-import com.example.mehdibenattia.Repositories.SkieurRepository;
-import com.example.mehdibenattia.entities.Abonnement;
-import com.example.mehdibenattia.entities.Piste;
-import com.example.mehdibenattia.entities.Skieur;
+import org.springframework.util.Assert;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class ISkieurServiceImp implements ISkieurService{
@@ -21,6 +18,11 @@ public class ISkieurServiceImp implements ISkieurService{
     PisteRepository pisteRepository;
     @Autowired
     AbonnementRepository abonnementRepository;
+    @Autowired
+    CoursRepository coursRepository;
+
+    @Autowired
+    InscriptionRepository inscriptionRepository;
     @Override
     public List<Skieur> retrieveAllSkieurs() {
         return skieurRepository.findAll();
@@ -38,44 +40,110 @@ public class ISkieurServiceImp implements ISkieurService{
 
     @Override
     public void removeSkieur(Long numSkieur) {
-    skieurRepository.deleteById(numSkieur);
+        skieurRepository.deleteById(numSkieur);
     }
 
     @Override
     public Skieur retrieveSkieur(Long numSkieur) {
         return skieurRepository.findById(numSkieur).orElse(null);
     }
-    @Override
-    public Skieur assignSkierToPiste(Long numSkieur, Long numPiste){
-        //récupération des données
-        Skieur skieur= skieurRepository.findById(numSkieur).orElse(null);
-        Piste piste= pisteRepository.findById(numPiste).orElse(null);
-        if(skieur !=null && piste !=null){
-            //traitement
-            List<Piste>pistes=skieur.getPistes();
-            piste.getSkieurs().add(skieur);
-            pisteRepository.save(piste);
-            skieur.setPistes(pistes);
-        }
 
-        return skieurRepository.findById(numSkieur).orElse(null);
-    }
+    // When many to many
     @Override
-    public Skieur AssignSkierToSubscription(long numSkieur, long numAbon){
-        Skieur skieur= skieurRepository.findById(numSkieur).orElse(null);
-        Abonnement abonnement= abonnementRepository.findById(numAbon).orElse(null);
-        if(skieur !=null && abonnement !=null){
+    public Skieur assignSkierToPiste(long numSkieur, long numPiste) {
+        //RECUPERATION ID
+        Skieur skieur=skieurRepository.findById(numSkieur).orElse(null) ;
+        Assert.notNull(skieur,"skieur not found!!!");
+        Piste piste=pisteRepository.findById(numPiste).orElse(null);
+        Assert.notNull(piste,"piste not found!!!");
+        //verrificationnon null
+//            if(skieur!=null && piste!=null){
+        //traitement
+        // skieur.getPistes().add(piste);
+        List<Piste> pistes=skieur.getPistes();
+        pistes.add(piste);
+        skieur.setPistes(pistes);
+        return  skieurRepository.save(skieur);
+
+    }
+//            return null;
+//        }
+
+    // When one to one
+    @Override
+    public Skieur AssignSkierToSubscription(long numSkieur, long numAbon) {
+        //RECUPERATION ID
+        Skieur skieur=skieurRepository.findById(numSkieur).orElse(null) ;
+        Assert.notNull(skieur,"skieur not found!!!");
+        Abonnement abonnement=abonnementRepository.findById(numAbon).orElse(null);
+        Assert.notNull(abonnement,"abonnement not found!!!");
+        //verrificationnon null
+//            if(skieur!=null && abonnement!=null){
+        //traitement
+        // skieur.getPistes().add(piste);
+
+        skieur.setAbonnement(abonnement); //o2o
+
+        return  skieurRepository.save(skieur);
+
+    }
+//        return null;}
+
+    //when one to many
+    @Override
+    public Skieur assignSkierToInscription(long numSkieur, long numInscription) {
+        Skieur skieur=skieurRepository.findById(numSkieur).orElse(null) ;
+        Inscription inscription=inscriptionRepository.findById(numInscription).orElse(null);
+        //verrification non null
+        if(skieur!=null && inscription!=null){
             //traitement
-            skieur.setAbonnement(abonnement);
-            skieurRepository.save(skieur);
+            // skieur.getPistes().add(piste);
+            List<Inscription> inscriptions=skieur.getInscriptions();
+            inscriptions.add(inscription);
+            skieur.setInscriptions(inscriptions);
+            return  skieurRepository.save(skieur);
 
         }
-        return null;
-    }
+        return null;    }
 
     @Override
     public List<Skieur> retrieveSkiersBySubscriptionType(TypeAbonnement typeAbonnement) {
         return skieurRepository.findSkieurByAbonnement_TypeAbon(typeAbonnement);
+    }
+
+    @Override
+    public List<Skieur> findByInscriptionsCoursTypeCoursAndInscriptionsCoursSupportAndPistesCouleur(TypeCours inscriptions_cours_typeCours, Support inscriptions_cours_support, Couleur pistes_couleur) {
+        return skieurRepository.findByInscriptionsCoursTypeCoursAndInscriptionsCoursSupportAndPistesCouleur(inscriptions_cours_typeCours, inscriptions_cours_support, pistes_couleur);
+    }
+
+    @Override
+    public List<Skieur> findByMoniteurNameAndSupportTypeJPQL(Support support, String nom) {
+        return skieurRepository.findByMoniteurNameAndSupportTypeJPQL(support,nom);
+    }
+
+    @Override
+    public Skieur addSkierAndAssignToCourse(Skieur skieur) {
+        Assert.notNull(skieur.getAbonnement(),"Abonnement must be entered!!!"); //vérifier si l'objet abonn existe
+        Assert.notNull(skieur.getInscriptions(),"Inscription must be entered!!!!");
+        List<Inscription> inscriptions=skieur.getInscriptions();
+        inscriptions.forEach(inscription -> {   //nparcouri liste taa inscrip w netfaked ken kol inscri aandha cours
+            Assert.notNull(inscription.getCours().getNumCours(),"Cours must be entered!!!");
+            Cours cours= coursRepository.findById(inscription.getCours().getNumCours()).orElse(null);
+            Assert.notNull(cours,"No cours found with this id!!!");
+            inscription.setCours(cours); //inscription aandou cours barka donc l inscrip houa li bech ygéri l relation et il va affecter inscrip lel cours
+            //taw ki bech ntestiw , exception handler
+        });
+        skieurRepository.saveAndFlush(skieur); //ken bech nhotha dekhel l for mch bech ysajel les controles de saisie donc nhotha l bara w naawed naamel for lel skieur
+        skieur.getInscriptions().forEach(inscription ->{
+            inscription.setSkieur(skieur);
+            inscriptionRepository.saveAndFlush(inscription);
+        });
+        return skieur;
+    }
+
+    @Override
+    public List<Skieur> findSkieursByPisteCouleur(Couleur couleur) {
+        return skieurRepository.findSkieursByPisteCouleur(couleur);
     }
 
 }

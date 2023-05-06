@@ -6,6 +6,6 @@ import com.example.mehdibenattia.entities.TypeAbonnement;
 import java.time.LocalDate;
 import java.util.List;
 public interface AbonnementRepository extends JpaRepository<Abonnement,Long > {
-    List<Abonnement> findByTypeAbon(TypeAbonnement typeAbonnement);
+    List<Abonnement> findByTypeAbonOrderByDateDebut(TypeAbonnement typeAbonnement);
     List<Abonnement> findAbonnementByDateDebutAndDateFin(LocalDate startDate, LocalDate endDate);
 }

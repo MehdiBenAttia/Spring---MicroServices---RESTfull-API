@@ -23,7 +23,7 @@ public class Cours {
     private Support support;
     private float prix;
     private int creneau;
-    @Transient   //ma todhhorch fel base de données
+    @Transient
     private int nomProf;
     @OneToMany(mappedBy = "cours")
     private List<Inscription> inscriptions;
